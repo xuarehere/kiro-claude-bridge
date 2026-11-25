@@ -16,7 +16,7 @@
     "shortcuts": "node scripts/create-shortcuts.js",
     "pack": "node scripts/package-release.js",
     "verify": "node scripts/verify-full.js",
-    "test": "node --test tests/*.test.js"
+    "test": "node scripts/run-tests.js"
   },
   "keywords": [
     "kiro",
