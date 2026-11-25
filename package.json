@@ -1,0 +1,65 @@
+{
+  "name": "kiro-claude-bridge",
+  "version": "4.0.0",
+  "description": "Zero-dependency, plug-and-play proxy & offline Web Dashboard bridging Kiro IDE AI models (20 A-Z models incl. Claude 5.5 trio, GPT-5.6, Kimi K3, DeepSeek v3.2) to Claude Desktop, Claude Code CLI, and OpenAI clients — strictly zero auto-start.",
+  "main": "src/index.js",
+  "type": "module",
+  "bin": {
+    "kiro-bridge": "bin/kiro-bridge.js"
+  },
+  "scripts": {
+    "start": "node src/index.js",
+    "web": "node src/index.js --open",
+    "proxy-only": "node src/proxy/server.js",
+    "stop": "node scripts/stop.js",
+    "restore": "node scripts/restore.js",
+    "shortcuts": "node scripts/create-shortcuts.js",
+    "pack": "node scripts/package-release.js",
+    "verify": "node scripts/verify-full.js",
+    "test": "node --test tests/*.test.js"
+  },
+  "keywords": [
+    "kiro",
+    "kiro-ide",
+    "claude",
+    "claude-desktop",
+    "claude-code",
+    "anthropic",
+    "openai-proxy",
+    "plug-and-play",
+    "zero-dependencies"
+  ],
+  "author": "Kiro-Claude-Bridge Contributors",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/xuarehere/kiro-claude-bridge.git"
+  },
+  "homepage": "https://github.com/xuarehere/kiro-claude-bridge#readme",
+  "bugs": {
+    "url": "https://github.com/xuarehere/kiro-claude-bridge/issues"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "bin/",
+    "config/model-settings.json",
+    "docs/",
+    "scripts/",
+    "src/",
+    "start-web.bat",
+    "stop.bat",
+    "restore.bat",
+    "start.sh",
+    "stop.sh",
+    "README.md",
+    "README_zh.md",
+    "CHANGELOG.md",
+    "CONTRIBUTING.md",
+    "SECURITY.md",
+    "CODE_OF_CONDUCT.md",
+    "LICENSE"
+  ],
+  "dependencies": {}
+}

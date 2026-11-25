@@ -1,0 +1,59 @@
+{
+  "global": {
+    "passThroughClient": true,
+    "defaultEffort": "high",
+    "defaultThinkingBudget": 4096
+  },
+  "models": {
+    "claude-opus-5.5": {
+      "effort": "max",
+      "thinkingEnabled": true
+    },
+    "claude-sonnet-5.5": {
+      "effort": "high",
+      "thinkingEnabled": true
+    },
+    "claude-haiku-5.5": {
+      "effort": "medium",
+      "thinkingEnabled": true
+    },
+    "gpt-5.6-sol": {
+      "effort": "high",
+      "thinkingEnabled": true
+    },
+    "gpt-5.6-terra": {
+      "effort": "high",
+      "thinkingEnabled": true
+    },
+    "gpt-5.6-luna": {
+      "effort": "high",
+      "thinkingEnabled": true
+    },
+    "grok-4.7": {
+      "effort": "high",
+      "thinkingEnabled": true
+    },
+    "kimi-k3": {
+      "effort": "max",
+      "thinkingEnabled": true
+    },
+    "claude-3-5-sonnet": {
+      "effort": "medium"
+    },
+    "claude-3-7-sonnet": {
+      "effort": "high"
+    },
+    "claude-haiku-4.5": {
+      "effort": "medium"
+    },
+    "claude-opus-4-8": {
+      "effort": "high"
+    },
+    "claude-sonnet-4.5": {
+      "effort": "high"
+    },
+    "claude-sonnet-5": {
+      "effort": "high"
+    }
+  }
+}

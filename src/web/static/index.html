@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kiro-Claude-Bridge v4 | 零依赖即插即用控制看板</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container" class="toast-container"></div>
+
+  <!-- Header -->
+  <header class="app-header">
+    <div class="container-max header-inner">
+      <div class="brand-group">
+        <div class="brand-logo">K</div>
+        <div>
+          <div class="brand-title">
+            <h1>Kiro-Claude-Bridge</h1>
+            <span class="version-pill font-mono">v4.0.0 · 零依赖即插即用</span>
+          </div>
+          <p class="brand-sub">Kiro IDE ➔ Claude Desktop / Claude Code / OpenAI 全协议网关（严禁开机自启）</p>
+        </div>
+      </div>
+
+      <div class="header-controls">
+        <div id="proxy-pill" class="status-pill">
+          <span class="dot dot-red" id="status-dot"></span>
+          <span id="proxy-status-text" class="text-slate-300">正在检查...</span>
+        </div>
+
+        <button id="btn-create-shortcuts" class="btn btn-slate btn-sm" title="按需创建桌面快捷方式（绝不写开机自启）">
+          <i data-lucide="folder-plus"></i>
+          <span>桌面快捷方式</span>
+        </button>
+
+        <button id="btn-toggle-proxy" class="btn btn-primary btn-sm">
+          <i data-lucide="play"></i>
+          <span id="btn-toggle-text">启动代理</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="container-max main-content">
+
+    <!-- Port Conflict Diagnostic Banner (Hidden unless port is occupied externally) -->
+    <section id="port-conflict-banner" class="conflict-banner hidden">
+      <div class="conflict-header">
+        <div class="conflict-icon">
+          <i data-lucide="alert-triangle"></i>
+        </div>
+        <div style="flex:1; min-width:0;">
+          <h3 class="conflict-title" id="conflict-title">检测到代理端口被其他进程占用，导致本地代理无法启动</h3>
+          <p class="conflict-desc" id="conflict-desc">端口冲突诊断详情加载中...</p>
+        </div>
+      </div>
+      <div class="conflict-meta font-mono" id="conflict-process-meta"></div>
+      <div id="legacy-autostart-box" class="autostart-check hidden">
+        <input type="checkbox" id="chk-disable-legacy-autostart" checked>
+        <label for="chk-disable-legacy-autostart">同时清理系统中残留的旧版 <code>Startup\Kiro Proxy.lnk</code> 开机自启项（防止重启后再次抢占端口）</label>
+      </div>
+      <div class="conflict-actions">
+        <button id="btn-takeover-port" class="btn btn-danger">
+          <i data-lucide="zap"></i>
+          <span>一键接管端口并启动代理</span>
+        </button>
+        <button id="btn-switch-free-port" class="btn btn-amber-soft">
+          <i data-lucide="arrow-right-left"></i>
+          <span id="btn-switch-port-text">切换至空闲端口 (3458) 并同步配置</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Hero Cards -->
+    <section class="grid-2">
+      <div class="hero-card hero-card-sky">
+        <div class="hero-icon hero-icon-sky">
+          <i data-lucide="zap"></i>
+        </div>
+        <h2>一键接入 Kiro 模式</h2>
+        <p>全量动态同步 Kiro 可用模型（严格 A-Z 排序）到 Claude Desktop UI、Claude Code 与 CC Switch 并确保代理运行。</p>
+        <button id="btn-switch-kiro" class="btn btn-hero-sky">
+          <i data-lucide="rocket"></i>
+          <span>立即应用 Kiro 代理模式</span>
+        </button>
+      </div>
+
+      <div class="hero-card">
+        <div class="hero-icon hero-icon-amber">
+          <i data-lucide="rotate-ccw"></i>
+        </div>
+        <h2>一键恢复原状 (零污染)</h2>
+        <p>安全停止代理端口，从初始纯净备份完整还原 Claude Desktop 与 Claude Code，毫无残留。</p>
+        <button id="btn-restore-original" class="btn btn-hero-slate">
+          <i data-lucide="undo-2"></i>
+          <span>一键断开并还原初始配置</span>
+        </button>
+      </div>
+    </section>
+
+    <!-- Overview Stats Grid -->
+    <section class="grid-4">
+      <div class="stat-card">
+        <div class="stat-head">
+          <span>代理核心状态</span>
+          <i data-lucide="server" class="text-sky"></i>
+        </div>
+        <div class="stat-value" id="stat-proxy-status">检查中...</div>
+        <div class="stat-sub font-mono" id="stat-proxy-port">API: http://127.0.0.1:3456</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-head">
+          <span>Kiro 授权凭据</span>
+          <i data-lucide="shield-check" class="text-emerald"></i>
+        </div>
+        <div class="stat-value text-emerald" id="stat-auth-provider">--</div>
+        <div class="stat-sub truncate" id="stat-auth-expiry">有效期至: --</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-head">
+          <span>Claude Desktop UI</span>
+          <i data-lucide="layout" class="text-purple"></i>
+        </div>
+        <div class="stat-value" id="stat-desktop-status">--</div>
+        <div class="stat-sub" id="stat-desktop-models">正在同步模型状态...</div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-head">
+          <span>调用统计</span>
+          <i data-lucide="activity" class="text-amber"></i>
+        </div>
+        <div class="stat-value" id="stat-total-requests">0 次请求</div>
+        <div class="stat-sub" id="stat-tokens">Tokens 输入/输出: 0 / 0</div>
+      </div>
+    </section>
+
+    <!-- Full Kiro Model Matrix -->
+    <section class="panel-section">
+      <div class="section-header">
+        <div>
+          <h2 class="section-title">
+            <i data-lucide="cpu"></i>
+            <span>Kiro IDE 全量模型矩阵</span>
+            <span id="model-count-badge" class="pill pill-sky">加载中...</span>
+            <span class="pill pill-indigo">A-Z 严格字典序</span>
+            <span class="pill pill-emerald">动态同步</span>
+          </h2>
+          <p class="section-sub">严格对应 Kiro IDE 真实模型（含 Claude Opus/Sonnet/Haiku 5.5 三重奏，绝不虚构），支持一键注入 Claude Desktop。</p>
+        </div>
+        <div class="badge-row">
+          <button id="btn-live-fetch" class="btn btn-indigo-soft">
+            <i data-lucide="refresh-cw"></i>
+            <span>从 Kiro 实时获取</span>
+          </button>
+          <button id="btn-open-effort-modal" class="btn btn-purple-soft">
+            <i data-lucide="sliders"></i>
+            <span>思考参数配置</span>
+          </button>
+          <button id="btn-sync-models" class="btn btn-sky-soft">
+            <i data-lucide="send"></i>
+            <span>一键同步到 Claude Desktop</span>
+          </button>
+        </div>
+      </div>
+
+      <div id="models-grid" class="grid-3">
+        <div class="text-slate-500">正在加载 Kiro 模型列表...</div>
+      </div>
+    </section>
+
+    <!-- Playground & Logs -->
+    <section class="grid-12">
+      <div class="panel-section col-span-7" style="display:flex; flex-direction:column; justify-content:space-between; gap:1rem;">
+        <div>
+          <div class="section-header" style="margin-bottom:1rem; padding-bottom:0.75rem;">
+            <h2 class="section-title" style="font-size:1rem;">
+              <i data-lucide="terminal-square" class="text-emerald"></i>
+              <span>在线 API 测试沙盒 (Playground)</span>
+            </h2>
+            <span class="text-slate-400" style="font-size:0.75rem;">验证代理连通性与思考强度参数</span>
+          </div>
+
+          <div class="form-stack">
+            <div>
+              <label class="field-label" for="playground-model">测试模型 (严格 A-Z 字典序)</label>
+              <select id="playground-model" class="field-input font-mono"></select>
+            </div>
+
+            <div id="playground-effort-wrapper" class="effort-box">
+              <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:0.4rem;">
+                <label for="playground-effort" style="font-size:0.75rem; font-weight:500; color:#cbd5e1;">思考强度 (Effort / Thinking)</label>
+                <span id="playground-effort-hint" class="text-purple font-mono" style="font-size:0.68rem;">支持调节</span>
+              </div>
+              <select id="playground-effort" class="field-input font-mono" style="padding:0.38rem 0.65rem; font-size:0.75rem;"></select>
+            </div>
+
+            <div>
+              <label class="field-label" for="playground-prompt">提示词 (Prompt)</label>
+              <textarea id="playground-prompt" rows="3" class="field-input font-mono" style="resize:none;">请用一句话证明你当前能够正常回答，并列出你的模型特色。</textarea>
+            </div>
+
+            <button id="btn-run-test" class="btn btn-emerald">
+              <i data-lucide="send"></i>
+              <span>发送测试请求</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="border-top:1px solid #1e293b; padding-top:0.85rem;">
+          <label class="field-label">返回结果</label>
+          <div id="playground-result" class="playground-output font-mono whitespace-pre-wrap">点击上方按钮开始测试...</div>
+        </div>
+      </div>
+
+      <div class="panel-section col-span-5" style="display:flex; flex-direction:column;">
+        <div class="section-header" style="margin-bottom:1rem; padding-bottom:0.75rem;">
+          <h2 class="section-title" style="font-size:1rem;">
+            <i data-lucide="file-text"></i>
+            <span>实时转发日志 (Live Logs)</span>
+          </h2>
+          <button id="btn-refresh-logs" class="btn btn-slate btn-sm">
+            <i data-lucide="refresh-cw"></i>
+            <span>刷新</span>
+          </button>
+        </div>
+
+        <div id="logs-container" class="logs-list font-mono">
+          <div class="text-slate-500" style="font-size:0.75rem;">等待 API 请求...</div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <footer class="app-footer">
+    <div class="container-max footer-inner">
+      <div>Kiro-Claude-Bridge &copy; 2026 · Zero Dependencies · Zero Auto-Start</div>
+      <div id="footer-runtime-info" class="text-slate-400">MIT License · Anthropic + OpenAI Compatible</div>
+    </div>
+  </footer>
+
+  <!-- Effort Configuration Modal -->
+  <div id="effort-modal" class="modal-overlay hidden opacity-0">
+    <div class="modal-box">
+      <div class="modal-head">
+        <div>
+          <h3 style="margin:0; font-size:1rem; color:#fff;">模型思考强度与推理预算配置 (Effort Settings)</h3>
+          <p style="margin:0.2rem 0 0; font-size:0.75rem; color:#94a3b8;">严格绑定 Kiro IDE 真实 JSON Schema，未支持推理的模型自动锁定</p>
+        </div>
+        <button id="btn-close-effort-modal" class="btn btn-slate btn-sm" aria-label="关闭">
+          <i data-lucide="x"></i>
+        </button>
+      </div>
+
+      <div class="modal-body" id="effort-modal-list">
+        <div class="text-slate-500">正在载入配置参数...</div>
+      </div>
+
+      <div class="modal-foot">
+        <span class="text-slate-500" style="font-size:0.72rem;">保存后将持久化写入本地配置文件并即刻生效</span>
+        <div style="display:flex; align-items:center; gap:0.65rem;">
+          <button id="btn-cancel-effort" class="btn btn-slate">取消</button>
+          <button id="btn-save-effort" class="btn btn-primary" style="background:#9333ea;">
+            <i data-lucide="check"></i>
+            <span>保存全部配置</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script type="module" src="icons.js"></script>
+  <script type="module" src="app.js"></script>
+</body>
+</html>
