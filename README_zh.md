@@ -4,6 +4,7 @@
 
 **零依赖、即插即用 · 严禁开机自启 · 全协议 AI 代理网关与离线控制看板**
 
+[![CI](https://github.com/xuarehere/kiro-claude-bridge/actions/workflows/ci-release.yml/badge.svg)](https://github.com/xuarehere/kiro-claude-bridge/actions/workflows/ci-release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/外部依赖-0%20NPM%20包-success.svg)](#零依赖即插即用架构)
 [![Auto Start](https://img.shields.io/badge/开机自启-严禁且绝不写入-critical.svg)](#严禁开机自启与零污染回滚)

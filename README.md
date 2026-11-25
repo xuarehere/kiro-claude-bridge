@@ -4,6 +4,7 @@
 
 **Zero-Dependency, Plug-and-Play Gateway & Offline Dashboard bridging Kiro IDE Models to Claude Desktop, Claude Code CLI, and OpenAI Clients**
 
+[![CI](https://github.com/xuarehere/kiro-claude-bridge/actions/workflows/ci-release.yml/badge.svg)](https://github.com/xuarehere/kiro-claude-bridge/actions/workflows/ci-release.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20NPM%20Packages-success.svg)](#plug-and-play-architecture)
 [![Auto Start](https://img.shields.io/badge/Auto--Start-Strictly%20Prohibited-critical.svg)](#zero-auto-start--zero-pollution-rollback)
